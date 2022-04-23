@@ -22,9 +22,9 @@ async function run() {
         app.get("/products", async (req, res) => {
             const query = {};
             const cursor = productCollection.find(query);
-            const users = await cursor.toArray();
-            console.log(users);
-            res.send(users);
+            const products = await cursor.toArray();
+            console.log(products);
+            res.send(products);
         })
 
         // GET single product api
@@ -35,7 +35,7 @@ async function run() {
             res.send(product);
         })
 
-        // POST product api
+        // POST create product api
         app.post("/product", async (req, res) => {
             const product = req.body;
             console.log(product);
@@ -43,7 +43,20 @@ async function run() {
             res.send(result);
         })
 
-        // DELETE product api
+        // PUT update product api
+        app.put("/product/:id", async (req, res) => {
+            const id = req.params.id;
+            const product = req.body;
+            const filter = {_id: ObjectId(id)};
+            const options = { upsert: true };
+            const updatedProduct = {
+                $set: product
+            }
+            const result = await productCollection.updateOne(filter, updatedProduct, options);
+            res.send(result);
+        })
+
+        // DELETE product delete api
         app.delete("/product/:id", async (req, res) => {
             const id = req.params.id;
             const query = {_id: ObjectId(id)};
