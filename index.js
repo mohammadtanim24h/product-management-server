@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const app = express();
 const port = process.env.PORT || 5000;
@@ -18,7 +18,7 @@ async function run() {
         await client.connect();
         const productCollection = client.db("megaShop").collection("products");
 
-        // get all products api
+        // GET all products api
         app.get("/products", async (req, res) => {
             const query = {};
             const cursor = productCollection.find(query);
@@ -27,11 +27,27 @@ async function run() {
             res.send(users);
         })
 
+        // GET single product api
+        app.get("/product/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const product = await productCollection.findOne(query);
+            res.send(product);
+        })
+
         // POST product api
         app.post("/product", async (req, res) => {
             const product = req.body;
             console.log(product);
             const result = await productCollection.insertOne(product);
+            res.send(result);
+        })
+
+        // DELETE product api
+        app.delete("/product/:id", async (req, res) => {
+            const id = req.params.id;
+            const query = {_id: ObjectId(id)};
+            const result = await productCollection.deleteOne(query);
             res.send(result);
         })
     }
